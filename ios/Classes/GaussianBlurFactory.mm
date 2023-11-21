@@ -200,11 +200,9 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
                                                   kCGRenderingIntentDefault);
         suffix = (char*)".jpg";
     }
-    
     if (image == nil) {
         suffix = (char*)"otro";
     }
-    
     if(!(strcasecmp(suffix, "otro") == 0)){
         colorSpace = CGImageGetColorSpace(image);
         CGFloat cols = CGImageGetWidth(image);
@@ -227,8 +225,8 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
     } else {
         src = cv::Mat();
     }
-    
-    
+
+
     if(src.empty()){
         resultado = [FlutterStandardTypedData typedDataWithBytes: data.data];
     } else {
@@ -238,36 +236,40 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
            
             cv::Mat dst;
             cv::Size size = cv::Size(kernelSize[0], kernelSize[1]);
-            cv::GaussianBlur(src, dst, size, sigmaX);
             
+            cv::GaussianBlur(src, dst, size, sigmaX);
             //********
             
             //NSData * imgConvert = [Util getImageConvert:dst];
+            
             NSData *data = [NSData dataWithBytes:dst.data length:dst.elemSize()*dst.total()];
             
-            if (dst.elemSize() == 1) {
+            if (dst.channels() == 1) {
                   colorSpace = CGColorSpaceCreateDeviceGray();
-              } else {
+            } else {
                   colorSpace = CGColorSpaceCreateDeviceRGB();
-              }
-              CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-              // Creating CGImage from cv::Mat
-              CGImageRef imageRef = CGImageCreate(dst.cols,                                 //width
-                                                 dst.rows,                                 //height
-                                                 8,                                          //bits per component
-                                                 8 * dst.elemSize(),                       //bits per pixel
-                                                 dst.step[0],                            //bytesPerRow
-                                                 colorSpace,                                 //colorspace
-                                                 kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
-                                                 provider,                                   //CGDataProviderRef
-                                                 NULL,                                       //decode
-                                                 false,                                      //should interpolate
-                                                 kCGRenderingIntentDefault                   //intent
-                                                 );
+            }
+//              CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+//              // Creating CGImage from cv::Mat
+//              CGImageRef imageRef = CGImageCreate(dst.cols,                                 //width
+//                                                 dst.rows,                                 //height
+//                                                 8,                                          //bits per component
+//                                                 8 * dst.elemSize(),                       //bits per pixel
+//                                                 dst.step[0],                            //bytesPerRow
+//                                                 colorSpace,                                 //colorspace
+//                                                 kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
+//                                                 provider,                                   //CGDataProviderRef
+//                                                 NULL,                                       //decode
+//                                                 false,                                      //should interpolate
+//                                                 kCGRenderingIntentDefault                   //intent
+//                                                 );
+            CGContextRef contextRef = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault);
+            CGImageRef imageRef = CGBitmapContextCreateImage(contextRef);
+
               // Getting UIImage from CGImage
               UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
               CGImageRelease(imageRef);
-              CGDataProviderRelease(provider);
+//              CGDataProviderRelease(provider);
               CGColorSpaceRelease(colorSpace);
             
             NSData* imgConvert;
@@ -291,7 +293,7 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
         
         resultado = [FlutterStandardTypedData typedDataWithBytes: respuesta];
     }
-    
+
     return resultado;
 }
 
