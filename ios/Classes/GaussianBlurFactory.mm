@@ -4,12 +4,15 @@
 //
 
 #import "GaussianBlurFactory.h"
-
 @implementation GaussianBlurFactory
 
 + (void)processWhitPathType:(int)pathType pathString:(NSString *)pathString data:(FlutterStandardTypedData *)data kernelSize: (double[]) kernelSizeDouble sigmaX: (double) sigmaX result: (FlutterResult) result{
     
-    
+    NSLog(@"pathType: %d", pathType);
+    NSLog(@"pathString: %@", pathString);
+    NSLog(@"data: %@", data);
+    NSLog(@"kernelSizeDouble: %f", *kernelSizeDouble);
+    NSLog(@"sigmaX: %f", sigmaX);
     switch (pathType) {
         case 1:
             result(gaussianBlurS(pathString, kernelSizeDouble, sigmaX));
