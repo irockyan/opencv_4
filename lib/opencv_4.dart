@@ -456,6 +456,22 @@ class Cv2 {
     return result;
   }
 
+  static Future<Uint8List?> gaussianBlur2({
+  required Uint8List inputBytes,
+  required List<double> kernelSize,
+  required double sigmaX,
+  }) async {
+    /// Variable to store operation result
+    final Uint8List? result = await GaussianBlurFactory.gaussianBlur2(
+      inputBytes: inputBytes,
+      kernelSize: kernelSize,
+      sigmaX: sigmaX,
+    );
+
+    /// Function returns the response from method channel
+    return result;
+  }
+
   /// [laplacian] function of Module: Image Filtering
   static Future<Uint8List?> laplacian({
     CVPathFrom pathFrom = CVPathFrom.ASSETS,
