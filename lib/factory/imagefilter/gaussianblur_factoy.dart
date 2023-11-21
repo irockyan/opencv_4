@@ -68,4 +68,24 @@ class GaussianBlurFactory {
     }
     return result;
   }
+
+  static Future<Uint8List?> gaussianBlur2({
+    required Uint8List inputBytes,
+    required List<double> kernelSize,
+    required double sigmaX,
+  }) async {
+    Uint8List? result;
+    List<double> kernelSizeTemp = Utils.verKernelSize(kernelSize);
+    result = await platform.invokeMethod(
+      'gaussianBlur',
+      {
+        "pathType": 3,
+        "pathString": '',
+        "data": inputBytes,
+        'kernelSize': kernelSizeTemp,
+        'sigmaX': sigmaX
+      },
+    );
+    return result;
+  }
 }
