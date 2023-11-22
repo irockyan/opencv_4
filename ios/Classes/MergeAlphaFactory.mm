@@ -3,25 +3,31 @@
 //  Created by fgsoruco.
 //
 
-#import "GaussianBlurFactory.h"
-@implementation GaussianBlurFactory
+#import "MergeAlphaFactory.h"
+@implementation MergeAlphaFactory
 
-+ (void)processWhitPathType:(int)pathType pathString:(NSString *)pathString data:(FlutterStandardTypedData *)data kernelSize: (double[]) kernelSizeDouble sigmaX: (double) sigmaX result: (FlutterResult) result{
+// + (void)processWhitPathType:(int)pathType pathString:(NSString *)pathString data:(FlutterStandardTypedData *)data alphaPercent:(double)alphaPercent result:(FlutterResult)result {
+//     // 在这里实现你的方法
+// }
+
++ (void)processWhitPathType:(int)pathType pathString:(NSString *)pathString data:(FlutterStandardTypedData *)data alphaPercent: (double) alphaPercent result: (FlutterResult) result{
     
     NSLog(@"pathType: %d", pathType);
     NSLog(@"pathString: %@", pathString);
     NSLog(@"data: %@", data);
-    NSLog(@"kernelSizeDouble: %f", *kernelSizeDouble);
-    NSLog(@"sigmaX: %f", sigmaX);
+    NSLog(@"alphaPercent: %f", alphaPercent);
+    if (alphaPercent > 1.0) {
+        alphaPercent = 1.0;
+    }
     switch (pathType) {
         case 1:
-            result(gaussianBlurS(pathString, kernelSizeDouble, sigmaX));
+            result(mergeS(pathString, alphaPercent));
             break;
         case 2:
-            result(gaussianBlurB(data, kernelSizeDouble, sigmaX));
+            result(mergeB(data, alphaPercent));
             break;
         case 3:
-            result(gaussianBlurB(data, kernelSizeDouble, sigmaX));
+            result(mergeB(data, alphaPercent));
             break;
         
         default:
@@ -30,7 +36,7 @@
     
 }
 
-FlutterStandardTypedData * gaussianBlurS(NSString * pathString, double kernelSize[], double sigmaX) {
+FlutterStandardTypedData * mergeS(NSString * pathString, double alphaPercent) {
     
 
     CGColorSpaceRef colorSpace;
@@ -70,7 +76,7 @@ FlutterStandardTypedData * gaussianBlurS(NSString * pathString, double kernelSiz
     
     if (puedePasar) {
         NSData * respuesta;
-        if((int) kernelSize[0] % 2 == 1 && (int)kernelSize[1] % 2 == 1){
+        if(alphaPercent != 1.0){
             
             
             CFDataRef file_data_ref = CFDataCreateWithBytesNoCopy(NULL, fileData.data(),
@@ -111,9 +117,16 @@ FlutterStandardTypedData * gaussianBlurS(NSString * pathString, double kernelSiz
             
             
             cv::Mat dst;
-            cv::Size size = cv::Size(kernelSize[0], kernelSize[1]);
-            cv::GaussianBlur(src, dst, size, sigmaX);
-            
+            if (src.channels() != 4) {
+                cv::cvtColor(src, src, cv::COLOR_BGR2BGRA);
+            } else {
+                dst = src.clone();
+            }
+            cv::Mat img_rgba[4];
+            cv::split(src, img_rgba);
+            // 改变 alpha 通道的值
+            img_rgba[3] = img_rgba[3] * alphaPercent;
+            cv::merge(img_rgba, 4, dst);
             
             NSData *data = [NSData dataWithBytes:dst.data length:dst.elemSize()*dst.total()];
             
@@ -122,23 +135,23 @@ FlutterStandardTypedData * gaussianBlurS(NSString * pathString, double kernelSiz
               } else {
                   colorSpace = CGColorSpaceCreateDeviceRGB();
               }
-            CGContextRef contextRef2 = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault);
-            CGImageRef imageRef = CGBitmapContextCreateImage(contextRef2);
 
+            CGContextRef contextRef2 = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrderDefault);
+            CGImageRef imageRef = CGBitmapContextCreateImage(contextRef2);
               // Getting UIImage from CGImage
             UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
             CGImageRelease(imageRef);
-            CGColorSpaceRelease(colorSpace);
             CGContextRelease(contextRef2);
+            CGColorSpaceRelease(colorSpace);
             
             NSData* imgConvert;
-            
-            if (strcasecmp(suffix, ".png") == 0) {
-                imgConvert = UIImagePNGRepresentation(finalImage);
-            } else if ((strcasecmp(suffix, ".jpg") == 0) ||
-                       (strcasecmp(suffix, ".jpeg") == 0)) {
-                imgConvert = UIImageJPEGRepresentation(finalImage, 1);
-            }
+            imgConvert = UIImagePNGRepresentation(finalImage);
+            // if (strcasecmp(suffix, ".png") == 0) {
+            //     imgConvert = UIImagePNGRepresentation(finalImage);
+            // } else if ((strcasecmp(suffix, ".jpg") == 0) ||
+            //            (strcasecmp(suffix, ".jpeg") == 0)) {
+            //     imgConvert = UIImageJPEGRepresentation(finalImage, 1);
+            // }
             
             
             respuesta = imgConvert;
@@ -156,7 +169,7 @@ FlutterStandardTypedData * gaussianBlurS(NSString * pathString, double kernelSiz
     return resultado;
 }
 
-FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double kernelSize[], double sigmaX) {
+FlutterStandardTypedData * mergeB(FlutterStandardTypedData * data, double alphaPercent) {
     
 
     CGColorSpaceRef colorSpace;
@@ -184,14 +197,17 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
     image = CGImageCreateWithPNGDataProvider(image_provider, NULL, true,
                                                  kCGRenderingIntentDefault);
     suffix = (char*)".png";
+//    NSLog(@"image198: %@", image);
     if (image == nil) {
         image = CGImageCreateWithJPEGDataProvider(image_provider, NULL, true,
                                                   kCGRenderingIntentDefault);
         suffix = (char*)".jpg";
     }
+//    NSLog(@"image204: %@", image);
     if (image == nil) {
         suffix = (char*)"otro";
     }
+//    NSLog(@"image208: %@", image);
     if(!(strcasecmp(suffix, "otro") == 0)){
         colorSpace = CGImageGetColorSpace(image);
         CGFloat cols = CGImageGetWidth(image);
@@ -215,22 +231,33 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
         src = cv::Mat();
     }
 
-
+//    NSLog(@"image232: pass");
     if(src.empty()){
         resultado = [FlutterStandardTypedData typedDataWithBytes: data.data];
     } else {
         NSData * respuesta;
         
-        if((int) kernelSize[0] % 2 == 1 && (int)kernelSize[1] % 2 == 1){
-           
+        if(alphaPercent != 1.0){
+//            NSLog(@"image232: channels %d", src.channels());
             cv::Mat dst;
-            cv::Size size = cv::Size(kernelSize[0], kernelSize[1]);
-            
-            cv::GaussianBlur(src, dst, size, sigmaX);
-            //********
-            
-            //NSData * imgConvert = [Util getImageConvert:dst];
-            
+            if (src.channels() != 4) {
+                cv::cvtColor(src, src, cv::COLOR_BGR2BGRA);
+            } else {
+                dst = src.clone();
+            }
+            // cv::Mat img_rgba[4];
+            std::vector<cv::Mat> img_rgba(4);
+            cv::split(src, img_rgba);
+            // 创建一个与 alpha 通道相同大小但所有值都是 alphaPercent 的矩阵
+//            NSLog(@"image252: type %d", img_rgba[3].type());
+            cv::Mat alphaFactor(img_rgba[3].size(), CV_32F, cv::Scalar(alphaPercent));
+            // 临时矩阵用于存储乘法结果
+            cv::Mat temp;
+            img_rgba[3].convertTo(temp, CV_32F); // 转换 alpha 通道到浮点型
+            cv::multiply(temp, alphaFactor, temp); // 执行乘法
+            temp.convertTo(img_rgba[3], img_rgba[3].type()); // 将结果转换回原始数据类型
+//            img_rgba[3] = alphaFactor;
+            cv::merge(img_rgba, dst);
             NSData *data = [NSData dataWithBytes:dst.data length:dst.elemSize()*dst.total()];
             
             if (dst.channels() == 1) {
@@ -238,38 +265,25 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
             } else {
                   colorSpace = CGColorSpaceCreateDeviceRGB();
             }
-//              CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-//              // Creating CGImage from cv::Mat
-//              CGImageRef imageRef = CGImageCreate(dst.cols,                                 //width
-//                                                 dst.rows,                                 //height
-//                                                 8,                                          //bits per component
-//                                                 8 * dst.elemSize(),                       //bits per pixel
-//                                                 dst.step[0],                            //bytesPerRow
-//                                                 colorSpace,                                 //colorspace
-//                                                 kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
-//                                                 provider,                                   //CGDataProviderRef
-//                                                 NULL,                                       //decode
-//                                                 false,                                      //should interpolate
-//                                                 kCGRenderingIntentDefault                   //intent
-//                                                 );
-            CGContextRef contextRef = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault);
+            CGContextRef contextRef = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrderDefault);
             CGImageRef imageRef = CGBitmapContextCreateImage(contextRef);
 
               // Getting UIImage from CGImage
-              UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
-              CGImageRelease(imageRef);
-              CGContextRelease(contextRef);
-//              CGDataProviderRelease(provider);
-              CGColorSpaceRelease(colorSpace);
+            UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
+            CGImageRelease(imageRef);
+            CGContextRelease(contextRef);
+            CGColorSpaceRelease(colorSpace);
             
             NSData* imgConvert;
-            
-            if (strcasecmp(suffix, ".png") == 0) {
-                imgConvert = UIImagePNGRepresentation(finalImage);
-            } else if ((strcasecmp(suffix, ".jpg") == 0) ||
-                       (strcasecmp(suffix, ".jpeg") == 0)) {
-                imgConvert = UIImageJPEGRepresentation(finalImage, 1);
-            }
+            imgConvert = UIImagePNGRepresentation(finalImage);
+            // if (strcasecmp(suffix, ".png") == 0) {
+            //     NSLog(@"image271: png");
+            //     imgConvert = UIImagePNGRepresentation(finalImage);
+            // } else if ((strcasecmp(suffix, ".jpg") == 0) ||
+            //            (strcasecmp(suffix, ".jpeg") == 0)) {
+            //             NSLog(@"image275: jpg");
+            //     imgConvert = UIImageJPEGRepresentation(finalImage, 1);
+            // }
             
             //********
             
@@ -283,7 +297,7 @@ FlutterStandardTypedData * gaussianBlurB(FlutterStandardTypedData * data, double
         
         resultado = [FlutterStandardTypedData typedDataWithBytes: respuesta];
     }
-
+//    NSLog(@"image292: %@", resultado);
     return resultado;
 }
 

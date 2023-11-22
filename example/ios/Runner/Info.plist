@@ -41,5 +41,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>请「允许访问所有照片」，以保证在数字员工中能正常访问相册。如果你使用「选择照片」，则所有未选中的，以及未来新增的照片都将无法在数字员工访问。</string>
 </dict>
 </plist>

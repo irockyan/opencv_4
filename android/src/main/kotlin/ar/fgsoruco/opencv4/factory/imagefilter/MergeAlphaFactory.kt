@@ -47,7 +47,7 @@ class MergeAlphaFactory {
                 // instantiating an empty MatOfByte class
                 val matOfByte = MatOfByte()
                 // Converting the Mat object to MatOfByte
-                Imgcodecs.imencode(".jpg", dst, matOfByte)
+                Imgcodecs.imencode(".png", dst, matOfByte)
                 byteArray = matOfByte.toArray()
                 return byteArray
             } catch (e: java.lang.Exception) {

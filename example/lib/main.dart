@@ -3,7 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:opencv_4/factory/pathfrom.dart';
+import 'package:opencv_4/factory/utils.dart';
 import 'package:opencv_4/opencv_4.dart';
 //uncomment when image_picker is installed
 import 'package:image_picker/image_picker.dart';
@@ -49,6 +51,12 @@ class _MyHomePageState extends State<MyHomePage> {
     _getOpenCVVersion();
   }
 
+  void writeImage(Uint8List bytes, String path) async {
+    final buffer = bytes.buffer;
+    final file = File(path);
+    await file.writeAsBytes(buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+  }
+
   testOpenCV({
     required String pathString,
     required CVPathFrom pathFrom,
@@ -58,14 +66,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }) async {
     try {
       //test with threshold
-      _byte = await Cv2.threshold(
-        pathFrom: pathFrom,
-        pathString: pathString,
-        maxThresholdValue: maxThresholdValue,
-        thresholdType: thresholdType,
-        thresholdValue: thresholdValue,
+      var data = await Utils.imgAssets2Uint8List(pathString);
+      _byte = await Cv2.mergeAlpha(
+        inputBytes: data,
+        alphaPercenter: 0.7,
       );
-
+      debugPrint("mergeAlpha ${data.length} ${_byte!.length}");
+      // var image = Image.memory(_byte!);
+      // await ImageGallerySaver.saveImage(_byte!, quality: 100, name: 'test.PNG');
       setState(() {
         _byte;
         _visible = false;
@@ -164,6 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: TextStyle(fontSize: 23),
                         ),
                         Container(
+                          color: Colors.white,
                           margin: EdgeInsets.only(top: 5),
                           child: _byte != null
                               ? Image.memory(

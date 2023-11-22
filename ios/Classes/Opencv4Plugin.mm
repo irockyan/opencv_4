@@ -18,7 +18,7 @@
 #import "AdaptiveThresholdFactory.h"
 #import "DistanceTransformFactory.h"
 #import "ThresholdFactory.h"
-
+#import "MergeAlphaFactory.h"
 @implementation Opencv4Plugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -134,6 +134,15 @@
         double kernelSizeDouble[2] = {x,y};
 
         [GaussianBlurFactory processWhitPathType:pathType pathString:pathString data:data kernelSize:kernelSizeDouble sigmaX:sigmaX result:result];
+    }
+    else if ([@"mergeAlpha" isEqualToString:call.method]) {
+        
+        int pathType = [call.arguments[@"pathType"] intValue];
+        NSString* pathString = call.arguments[@"pathString"];
+        FlutterStandardTypedData* data = call.arguments[@"data"];
+        double alphaPercent = [call.arguments[@"alphaPercent"] doubleValue];
+
+        [MergeAlphaFactory processWhitPathType:pathType pathString:pathString data:data alphaPercent:alphaPercent result:result];
     }
     else if ([@"laplacian" isEqualToString:call.method]) {
     
