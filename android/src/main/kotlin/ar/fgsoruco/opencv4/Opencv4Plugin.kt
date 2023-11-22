@@ -147,6 +147,18 @@ class Opencv4Plugin: FlutterPlugin, MethodCallHandler {
           result.error("OpenCV-Error", "Android: "+e.message, e)
         }
       }
+      "mergeAlpha" -> {
+        try {
+          MergeAlphaFactory.process(
+                  call.argument<Int>("pathType") as Int,
+                  call.argument<String>("pathString") as String,
+                  call.argument<ByteArray>("data") as ByteArray,
+                  call.argument<Double>("alphaPercent") as Double,
+                  result)
+        } catch (e: Exception) {
+          result.error("OpenCV-Error", "Android: "+e.message, e)
+        }
+      }
       "laplacian" -> {
         try {
           LaplacianFactory.process(

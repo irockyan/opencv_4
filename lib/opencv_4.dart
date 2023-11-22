@@ -13,6 +13,7 @@ import 'package:opencv_4/factory/imagefilter/filter2d_factory.dart';
 import 'package:opencv_4/factory/imagefilter/gaussianblur_factoy.dart';
 import 'package:opencv_4/factory/imagefilter/laplacian_factory.dart';
 import 'package:opencv_4/factory/imagefilter/medianblur_factory.dart';
+import 'package:opencv_4/factory/imagefilter/mergealpha_factoy.dart';
 import 'package:opencv_4/factory/imagefilter/morphologyex_factory.dart';
 import 'package:opencv_4/factory/imagefilter/pyrmeanshiftfiltering_factory.dart';
 import 'package:opencv_4/factory/imagefilter/scharr_factory.dart';
@@ -466,6 +467,20 @@ class Cv2 {
       inputBytes: inputBytes,
       kernelSize: kernelSize,
       sigmaX: sigmaX,
+    );
+
+    /// Function returns the response from method channel
+    return result;
+  }
+
+  static Future<Uint8List?> mergeAlpha({
+  required Uint8List inputBytes,
+  required double alphaPercenter,
+  }) async {
+    /// Variable to store operation result
+    final Uint8List? result = await MergeAlphaFactory.mergeAlpha2(
+      inputBytes: inputBytes,
+      alphaPercent: alphaPercenter,
     );
 
     /// Function returns the response from method channel
