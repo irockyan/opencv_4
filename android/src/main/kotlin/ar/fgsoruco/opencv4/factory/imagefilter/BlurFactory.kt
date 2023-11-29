@@ -35,7 +35,8 @@ class BlurFactory {
                 val size = Size(kernelSize[0], kernelSize[1])
                 val point = Point(anchorPoint[0], anchorPoint[1])
                 // Convert the image to Gray
-                Imgproc.blur(src, dst, size, point, borderType)
+//                Imgproc.blur(src, dst, size, point, borderType)
+                Imgproc.blur(src, dst, size)
 
                 // instantiating an empty MatOfByte class
                 val matOfByte = MatOfByte()
@@ -59,7 +60,8 @@ class BlurFactory {
                 val size = Size(kernelSize[0], kernelSize[1])
                 val point = Point(anchorPoint[0], anchorPoint[1])
                 // Convert the image to Gray
-                Imgproc.blur(src, dst, size, point, borderType)
+//                Imgproc.blur(src, dst, size, point, borderType)
+                Imgproc.blur(src, dst, size)
 
                 // instantiating an empty MatOfByte class
                 val matOfByte = MatOfByte()

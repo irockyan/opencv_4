@@ -107,8 +107,9 @@ FlutterStandardTypedData * blur(NSString * pathString, double kernelSize[], doub
         cv::Mat dst;
         cv::Size size = cv::Size(kernelSize[0], kernelSize[1]);
         cv::Point anchorPointP = cv::Point(anchorPoint[0], anchorPoint[1]);
-        cv::blur(src, dst, size, anchorPointP, borderType);
-        
+//        cv::blur(src, dst, size, anchorPointP, borderType);
+        cv::blur(src, dst, size);
+
         
         NSData *data = [NSData dataWithBytes:dst.data length:dst.elemSize()*dst.total()];
         
@@ -210,8 +211,9 @@ FlutterStandardTypedData * blurB(FlutterStandardTypedData * data, double kernelS
         cv::Mat dst;
         cv::Size size = cv::Size(kernelSize[0], kernelSize[1]);
         cv::Point anchorPointP = cv::Point(anchorPoint[0], anchorPoint[1]);
-        cv::blur(src, dst, size, anchorPointP, borderType);
-        
+//        cv::blur(src, dst, size, anchorPointP, borderType);
+        cv::blur(src, dst, size);
+
         NSData *data = [NSData dataWithBytes:dst.data length:dst.elemSize()*dst.total()];
         
         if (dst.elemSize() == 1) {
