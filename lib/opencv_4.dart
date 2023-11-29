@@ -520,6 +520,19 @@ class Cv2 {
     /// Function returns the response from method channel
     return result;
   }
+  static Future<Uint8List?> medianBlur2({
+    required Uint8List inputBytes,
+    required int kernelSize,
+  }) async {
+    /// Variable to store operation result
+    final Uint8List? result = await MedianBlurFactory.medianBlur2(
+      inputBytes: inputBytes,
+      kernelSize: kernelSize,
+    );
+
+    /// Function returns the response from method channel
+    return result;
+  }
 
   /// [morphologyEx] function of Module: Image Filtering
   static Future<Uint8List?> morphologyEx({
