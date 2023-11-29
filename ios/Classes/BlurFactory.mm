@@ -117,25 +117,14 @@ FlutterStandardTypedData * blur(NSString * pathString, double kernelSize[], doub
           } else {
               colorSpace = CGColorSpaceCreateDeviceRGB();
           }
-          CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-          // Creating CGImage from cv::Mat
-          CGImageRef imageRef = CGImageCreate(dst.cols,                                 //width
-                                             dst.rows,                                 //height
-                                             8,                                          //bits per component
-                                             8 * dst.elemSize(),                       //bits per pixel
-                                             dst.step[0],                            //bytesPerRow
-                                             colorSpace,                                 //colorspace
-                                             kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
-                                             provider,                                   //CGDataProviderRef
-                                             NULL,                                       //decode
-                                             false,                                      //should interpolate
-                                             kCGRenderingIntentDefault                   //intent
-                                             );
-          // Getting UIImage from CGImage
-          UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
-          CGImageRelease(imageRef);
-          CGDataProviderRelease(provider);
-          CGColorSpaceRelease(colorSpace);
+        CGContextRef contextRef2 = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault);
+        CGImageRef imageRef = CGBitmapContextCreateImage(contextRef2);
+
+        // Getting UIImage from CGImage
+        UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
+        CGImageRelease(imageRef);
+        CGColorSpaceRelease(colorSpace);
+        CGContextRelease(contextRef2);
         
         NSData* imgConvert;
         
@@ -230,26 +219,34 @@ FlutterStandardTypedData * blurB(FlutterStandardTypedData * data, double kernelS
           } else {
               colorSpace = CGColorSpaceCreateDeviceRGB();
           }
-          CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-          // Creating CGImage from cv::Mat
-          CGImageRef imageRef = CGImageCreate(dst.cols,                                 //width
-                                             dst.rows,                                 //height
-                                             8,                                          //bits per component
-                                             8 * dst.elemSize(),                       //bits per pixel
-                                             dst.step[0],                            //bytesPerRow
-                                             colorSpace,                                 //colorspace
-                                             kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
-                                             provider,                                   //CGDataProviderRef
-                                             NULL,                                       //decode
-                                             false,                                      //should interpolate
-                                             kCGRenderingIntentDefault                   //intent
-                                             );
-          // Getting UIImage from CGImage
-          UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
-          CGImageRelease(imageRef);
-          CGDataProviderRelease(provider);
-          CGColorSpaceRelease(colorSpace);
-        
+//          CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+//          // Creating CGImage from cv::Mat
+//          CGImageRef imageRef = CGImageCreate(dst.cols,                                 //width
+//                                             dst.rows,                                 //height
+//                                             8,                                          //bits per component
+//                                             8 * dst.elemSize(),                       //bits per pixel
+//                                             dst.step[0],                            //bytesPerRow
+//                                             colorSpace,                                 //colorspace
+//                                             kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
+//                                             provider,                                   //CGDataProviderRef
+//                                             NULL,                                       //decode
+//                                             false,                                      //should interpolate
+//                                             kCGRenderingIntentDefault                   //intent
+//                                             );
+//          // Getting UIImage from CGImage
+//          UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
+//          CGImageRelease(imageRef);
+//          CGDataProviderRelease(provider);
+//          CGColorSpaceRelease(colorSpace);
+        CGContextRef contextRef = CGBitmapContextCreate(dst.data, dst.cols, dst.rows, 8, dst.step[0], colorSpace, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault);
+        CGImageRef imageRef = CGBitmapContextCreateImage(contextRef);
+
+        // Getting UIImage from CGImage
+        UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
+        CGImageRelease(imageRef);
+        CGContextRelease(contextRef);
+//              CGDataProviderRelease(provider);
+        CGColorSpaceRelease(colorSpace);
         NSData* imgConvert;
         
         if (strcasecmp(suffix, ".png") == 0) {

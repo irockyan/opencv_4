@@ -74,4 +74,25 @@ class BlurFactory {
     }
     return result;
   }
+
+  static Future<Uint8List?> blur2({
+    required Uint8List inputBytes,
+    required List<double> kernelSize,
+    required List<double> anchorPoint,
+    required int borderType,
+  }) async {
+    Uint8List? result;
+    result = await platform.invokeMethod(
+      'blur',
+      {
+        "pathType": 3,
+        "pathString": '',
+        "data": inputBytes,
+        "kernelSize": kernelSize,
+        "anchorPoint": anchorPoint,
+        "borderType": borderType,
+      },
+    );
+    return result;
+  }
 }

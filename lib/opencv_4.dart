@@ -361,6 +361,24 @@ class Cv2 {
     return result;
   }
 
+  static Future<Uint8List?> blur2({
+    required Uint8List inputBytes,
+    required List<double> kernelSize,
+    required List<double> anchorPoint,
+    required int borderType,
+  }) async {
+    /// Variable to store operation result
+    final Uint8List? result = await BlurFactory.blur2(
+      inputBytes: inputBytes,
+      kernelSize: kernelSize,
+      anchorPoint: anchorPoint,
+      borderType: borderType,
+    );
+
+    /// Function returns the response from method channel
+    return result;
+  }
+
   /// [boxFilter] function of Module: Image Filtering
   static Future<Uint8List?> boxFilter({
     CVPathFrom pathFrom = CVPathFrom.ASSETS,
