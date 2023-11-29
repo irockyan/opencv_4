@@ -75,4 +75,21 @@ class MedianBlurFactory {
     }
     return result;
   }
+
+  static Future<Uint8List?> medianBlur2({
+    required Uint8List inputBytes,
+    required int kernelSize,
+  }) async {
+    Uint8List? result;
+    result = await platform.invokeMethod(
+      'medianBlur',
+      {
+        "pathType": 3,
+        "pathString": '',
+        "data": inputBytes,
+        'kernelSize': kernelSize,
+      },
+    );
+    return result;
+  }
 }
