@@ -17,28 +17,38 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.Core
 
-/** Opencv_4Plugin */
+/** Opencv4Plugin */
 class Opencv4Plugin: FlutterPlugin, MethodCallHandler {
-  var OpenCVFLag = false
+  private var OpenCVFLag = false
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
 
+  companion object {
+    @JvmStatic
+    fun registerWith(registrar: Registrar) {
+      val channel = MethodChannel(registrar.messenger(), "opencv_4")
+      channel.setMethodCallHandler(Opencv4Plugin())
+    }
+  }
+
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "opencv_4")
     channel.setMethodCallHandler(this)
+    
+    // 初始化 OpenCV
+    if (!OpenCVFLag) {
+      OpenCVFLag = OpenCVLoader.initDebug()
+      if (!OpenCVFLag) {
+        println("Error on load OpenCV")
+      }
+    }
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (!OpenCVFLag) {
-      if (!OpenCVLoader.initDebug()) {
-        println("Error on load OpenCV")
-      } else {
-        OpenCVFLag = true;
-      }
-    }
+    // 移除了每次方法调用时的 OpenCV 初始化检查
 
     when (call.method) {
 
